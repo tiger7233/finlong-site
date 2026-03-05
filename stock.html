@@ -5,117 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FINLONG | ניתוח מניה</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
         .tab-active { border-bottom: 3px solid #16a34a; color: #16a34a; font-weight: bold; }
-        .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
         .hidden-tab { display: none; }
-        .loading-shimmer { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
-<body class="p-4 md:p-8">
-
-    <header class="max-w-7xl mx-auto flex justify-between items-center mb-6">
+<body class="bg-slate-50 p-4">
+    <header class="max-w-6xl mx-auto flex justify-between items-end mb-8">
         <div>
-            <h1 id="stock-name" class="text-3xl font-black text-gray-800 uppercase tracking-tighter">טוען...</h1>
-            <p id="company-full-name" class="text-gray-500">אנא המתן...</p>
+            <a href="index.html" class="text-xs text-green-600 font-bold">← חזרה</a>
+            <h1 id="ticker" class="text-5xl font-black text-gray-900 uppercase tracking-tighter">---</h1>
+            <p id="companyName" class="text-gray-500">טוען נתונים...</p>
         </div>
-        <div class="flex gap-3">
-            <button onclick="checkAuthAndAdd()" class="bg-green-600 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:bg-green-700 transition">הוסף למעקב</button>
-            <button class="bg-white border border-gray-200 px-4 py-2 rounded-full font-bold hover:bg-gray-50">⚙️</button>
-        </div>
+        <button onclick="openModal()" class="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:scale-105 transition">+ הוסף למעקב</button>
     </header>
 
-    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="card p-4">
-            <p class="text-xs text-gray-400">מחיר נוכחי</p>
-            <p id="price-val" class="text-2xl font-bold">---</p>
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-4 rounded-xl shadow-sm border">
+            <p class="text-xs text-gray-400 uppercase">מחיר</p>
+            <p id="price" class="text-2xl font-bold">---</p>
         </div>
-        <div class="card p-4">
-            <p class="text-xs text-gray-400">שווי שוק</p>
-            <p id="mktcap-val" class="text-2xl font-bold">---</p>
+        <div class="bg-white p-4 rounded-xl shadow-sm border">
+            <p class="text-xs text-gray-400 uppercase">מכפיל P/E</p>
+            <p id="pe" class="text-2xl font-bold">---</p>
         </div>
-        <div class="card p-4">
-            <p class="text-xs text-gray-400">מכפיל רווח (P/E)</p>
-            <p id="pe-val" class="text-2xl font-bold">---</p>
+        <div class="bg-white p-4 rounded-xl shadow-sm border">
+            <p class="text-xs text-gray-400 uppercase">שווי שוק</p>
+            <p id="mktcap" class="text-2xl font-bold">---</p>
         </div>
-        <div class="card p-4">
-            <p class="text-xs text-gray-400">שינוי יומי</p>
-            <p id="change-val" class="text-2xl font-bold">---</p>
+        <div class="bg-white p-4 rounded-xl shadow-sm border">
+            <p class="text-xs text-gray-400 uppercase">שינוי %</p>
+            <p id="change" class="text-2xl font-bold">---</p>
         </div>
     </div>
 
-    <nav class="max-w-7xl mx-auto mb-6 border-b">
-        <div class="flex gap-8">
-            <button onclick="switchTab('stats')" id="btn-stats" class="tab-btn tab-active pb-2">נתוני מפתח</button>
-            <button onclick="switchTab('financials')" id="btn-financials" class="tab-btn pb-2 text-gray-500">דוחות כספיים</button>
-            <button onclick="switchTab('chart')" id="btn-chart" class="tab-btn pb-2 text-gray-500">גרף טכני</button>
-        </div>
-    </nav>
+    <main class="max-w-6xl mx-auto">
+        <nav class="flex gap-8 border-b mb-6 text-sm font-bold">
+            <button onclick="switchTab('chart')" id="btn-chart" class="tab-btn tab-active pb-2">גרף</button>
+            <button onclick="switchTab('fin')" id="btn-fin" class="tab-btn text-gray-400 pb-2">דוחות כספיים</button>
+        </nav>
 
-    <main class="max-w-7xl mx-auto">
-        <div id="content-stats" class="tab-content card p-6">
-            <h2 class="text-xl font-bold mb-4">סיכום ביצועים</h2>
-            <div id="fmp-data-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <p>טוען נתונים פיננסיים מ-Financial Modeling Prep...</p>
+        <div id="tab-chart" class="tab-content h-[500px] bg-white rounded-2xl border overflow-hidden">
+            <div id="tv-chart" class="h-full"></div>
+        </div>
+
+        <div id="tab-fin" class="tab-content hidden-tab bg-white p-8 rounded-2xl border">
+            <h3 class="font-bold mb-4">ביצועים פיננסיים (מקור: FMP)</h3>
+            <div id="financial-data" class="space-y-4 text-sm">
+                <p>טוען נתונים גולמיים מהדוחות...</p>
             </div>
         </div>
     </main>
 
-    <div id="login-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-2xl max-w-sm w-full text-center">
-            <div class="text-4xl mb-4">🔒</div>
-            <h2 class="text-xl font-bold mb-2">צריך להתחבר כדי לשמור</h2>
-            <p class="text-gray-500 mb-6 text-sm">כדי לנהל רשימת מעקב והתראות אישיות, עליך ליצור חשבון בחינם.</p>
-            <a href="login.html" class="block w-full bg-green-600 text-white py-3 rounded-xl font-bold mb-3">התחבר עכשיו</a>
-            <button onclick="document.getElementById('login-modal').classList.add('hidden')" class="text-gray-400 text-sm">אולי מאוחר יותר</button>
+    <div id="modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl max-w-sm w-full text-center">
+            <h2 class="text-2xl font-bold mb-4">צריך להתחבר 🔒</h2>
+            <p class="text-gray-500 mb-6">כדי לשמור מניות ולנהל רשימות מעקב אישיות, עליך להיות רשום.</p>
+            <a href="login.html" class="block w-full bg-green-600 text-white py-3 rounded-xl font-bold mb-4">התחברות / הרשמה</a>
+            <button onclick="closeModal()" class="text-gray-400 text-sm">סגור</button>
         </div>
     </div>
 
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        const FMP_API_KEY = "YOUR_FMP_API_KEY"; // שים כאן את המפתח שלך
-        const urlParams = new URLSearchParams(window.location.search);
-        const symbol = urlParams.get('symbol') || 'AAPL';
-        document.getElementById('stock-name').innerText = symbol;
-
-        // פונקציה למשיכת נתונים מהירה מ-FMP
-        async function fetchStockData() {
+        const API_KEY = "YOUR_FMP_API_KEY"; // הכנס כאן את המפתח שלך
+        const symbol = new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
+        
+        async function loadData() {
             try {
-                // משיכת מחיר ונתוני יום
-                const quoteRes = await fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${FMP_API_KEY}`);
-                const quoteData = await quoteRes.json();
-                
-                if(quoteData[0]) {
-                    const stock = quoteData[0];
-                    document.getElementById('price-val').innerText = "$" + stock.price;
-                    document.getElementById('mktcap-val').innerText = (stock.marketCap / 1e9).toFixed(2) + "B";
-                    document.getElementById('pe-val').innerText = stock.pe || "---";
-                    document.getElementById('change-val').innerText = stock.changesPercentage.toFixed(2) + "%";
-                    document.getElementById('change-val').className = stock.changesPercentage >= 0 ? "text-2xl font-bold text-green-600" : "text-2xl font-bold text-red-600";
-                    document.getElementById('company-full-name').innerText = stock.name;
+                const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${API_KEY}`);
+                const data = await res.json();
+                if(data[0]) {
+                    const s = data[0];
+                    document.getElementById('ticker').innerText = s.symbol;
+                    document.getElementById('companyName').innerText = s.name;
+                    document.getElementById('price').innerText = "$" + s.price;
+                    document.getElementById('pe').innerText = s.pe || "N/A";
+                    document.getElementById('mktcap').innerText = (s.marketCap / 1e9).toFixed(2) + "B";
+                    document.getElementById('change').innerText = s.changesPercentage.toFixed(2) + "%";
                 }
-            } catch (err) {
-                console.error("FMP API Error", err);
-            }
+            } catch(e) { console.error(e); }
         }
 
-        function checkAuthAndAdd() {
-            // כאן נבדוק אם המשתמש מחובר (כרגע נדמה שהוא לא מחובר)
-            const isLoggedIn = false; 
-            if(!isLoggedIn) {
-                document.getElementById('login-modal').classList.remove('hidden');
-            }
-        }
-
-        function switchTab(tab) {
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden-tab'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-            document.getElementById('btn-' + tab).classList.add('tab-active');
-            // לוגיקה להחלפת תוכן...
+            document.getElementById('tab-'+t).classList.remove('hidden-tab');
+            document.getElementById('btn-'+t).classList.add('tab-active');
         }
 
-        fetchStockData();
+        new TradingView.widget({"container_id": "tv-chart", "symbol": symbol, "interval": "D", "theme": "light", "width": "100%", "height": "100%"});
+        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        loadData();
     </script>
 </body>
 </html>
