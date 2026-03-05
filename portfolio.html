@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINLONG | הפורטפוליו שלי</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-6xl mx-auto p-8">
+        <header class="flex justify-between items-center mb-10">
+            <h1 class="text-4xl font-black">התיק שלי</h1>
+            <a href="settings.html" class="text-gray-400 hover:text-green-600">⚙️ הגדרות</a>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                <p class="text-sm text-gray-400 font-bold uppercase">שווי כולל</p>
+                <p class="text-3xl font-black text-green-600">$42,500</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                <p class="text-sm text-gray-400 font-bold uppercase">רווח יומי</p>
+                <p class="text-3xl font-black text-green-600">+$840</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                <p class="text-sm text-gray-400 font-bold uppercase">מניות במעקב</p>
+                <p class="text-3xl font-black">12</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+            <table class="w-full text-right">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="p-4">מניה</th>
+                        <th class="p-4">מחיר</th>
+                        <th class="p-4">שינוי</th>
+                        <th class="p-4">פעולות</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    <tr>
+                        <td class="p-4 font-bold">GOOG</td>
+                        <td class="p-4">$142.50</td>
+                        <td class="p-4 text-green-600 font-bold">+1.2%</td>
+                        <td class="p-4"><a href="stock.html?symbol=GOOG" class="text-blue-500 text-sm">ניתוח</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
