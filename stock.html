@@ -3,95 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINLONG PRO | ניתוח נתונים</title>
+    <title>FINLONG | ניתוח מניה</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
-        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; }
-        .tab-active { color: #22c55e; border-bottom: 2px solid #22c55e; }
-        .table-header { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid #334155; }
-        .data-row:hover { background: #334155; }
-        .positive { color: #22c55e; }
-        .negative { color: #ef4444; }
-        /* עיצוב גלילה */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-    </script>
+        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; }
+        .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .tab-active { color: #16a34a; border-bottom: 3px solid #16a34a; font-weight: 800; }
+        .tab-btn { transition: all 0.2s; cursor: pointer; }
+        .tab-btn:hover { color: #16a34a; }
+        .hidden-tab { display: none; }
+        th { background-color: #f1f5f9; color: #64748b; font-size: 0.85rem; padding: 12px; text-align: right; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-weight: 600; }
+        tr:hover { background-color: #f8fafc; }
+    </style>
 </head>
 <body class="p-4 md:p-8">
 
-    <nav class="max-w-7xl mx-auto flex justify-between items-center mb-8">
-        <div class="flex items-center gap-4">
-            <a href="index.html" class="text-2xl font-black text-green-500">FINLONG</a>
-            <div class="h-6 w-[1px] bg-slate-700"></div>
-            <h2 id="display-symbol" class="text-xl font-bold uppercase tracking-widest text-slate-400">---</h2>
+    <header class="max-w-7xl mx-auto flex flex-wrap justify-between items-center mb-8 gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-3xl font-black text-green-600">FINLONG</a>
+                <h1 id="ticker" class="text-4xl font-bold uppercase text-slate-800 border-r-2 pr-3 border-slate-300">---</h1>
+            </div>
+            <p id="companyName" class="text-slate-500 font-medium">טוען נתונים מהבורסה...</p>
         </div>
-        <div class="flex gap-4">
-            <button onclick="toggleCustomize()" class="text-slate-400 hover:text-white transition text-sm font-bold">⚙️ התאמה אישית</button>
-            <button class="bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded-lg font-bold text-sm transition shadow-lg shadow-green-900/20">הוסף למעקב</button>
+        <div class="flex gap-3">
+            <button onclick="document.getElementById('customize-modal').classList.remove('hidden')" class="bg-white border border-slate-300 px-5 py-2 rounded-xl font-bold hover:bg-slate-50">⚙️ התאמה אישית</button>
+            <button class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:bg-green-700 transition">הוסף למעקב</button>
+        </div>
+    </header>
+
+    <section id="quick-stats" class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        </section>
+
+    <nav class="max-w-7xl mx-auto mb-6 border-b-2 border-slate-100 overflow-x-auto">
+        <div class="flex gap-8 pb-1">
+            <button onclick="switchTab('overview')" id="btn-overview" class="tab-btn tab-active pb-3 whitespace-nowrap">סקירה וגרף</button>
+            <button onclick="switchTab('income')" id="btn-income" class="tab-btn text-slate-400 pb-3 whitespace-nowrap">רווח והפסד</button>
+            <button onclick="switchTab('balance')" id="btn-balance" class="tab-btn text-slate-400 pb-3 whitespace-nowrap">מאזן</button>
+            <button onclick="switchTab('cash')" id="btn-cash" class="tab-btn text-slate-400 pb-3 whitespace-nowrap">תזרים מזומנים</button>
+            <button onclick="switchTab('ratios')" id="btn-ratios" class="tab-btn text-slate-400 pb-3 whitespace-nowrap">יחסים פיננסיים</button>
         </div>
     </nav>
 
-    <header class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-        <div>
-            <h1 id="company-name" class="text-5xl font-black mb-2">טוען נתונים...</h1>
-            <div class="flex items-center gap-4">
-                <span id="live-price" class="text-3xl font-bold">---</span>
-                <span id="price-change" class="text-lg font-bold">---</span>
-            </div>
-        </div>
-        
-        <div id="custom-stats-bar" class="grid grid-cols-3 gap-4">
-            </div>
-    </header>
-
-    <div class="max-w-7xl mx-auto border-b border-slate-800 mb-8 overflow-x-auto no-scrollbar">
-        <div class="flex gap-10">
-            <button onclick="changeTab('overview')" id="tab-overview-btn" class="tab-btn tab-active pb-4 font-bold transition">סקירה</button>
-            <button onclick="changeTab('income')" id="tab-income-btn" class="tab-btn text-slate-500 pb-4 font-bold transition">רווח והפסד</button>
-            <button onclick="changeTab('balance')" id="tab-balance-btn" class="tab-btn text-slate-500 pb-4 font-bold transition">מאזן</button>
-            <button onclick="changeTab('cashflow')" id="tab-cashflow-btn" class="tab-btn text-slate-500 pb-4 font-bold transition">תזרים מזומנים</button>
-            <button onclick="changeTab('ratios')" id="tab-ratios-btn" class="tab-btn text-slate-500 pb-4 font-bold transition">יחסים</button>
-        </div>
-    </div>
-
     <main class="max-w-7xl mx-auto">
-        <div id="tab-overview" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 card h-[500px] overflow-hidden">
-                <div id="main-chart" class="h-full"></div>
+        <div id="tab-overview" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 card h-[550px] overflow-hidden">
+                <div id="tv-chart" class="h-full"></div>
             </div>
-            <div class="card p-6 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-slate-400 font-bold text-sm uppercase mb-4">אודות החברה</h3>
-                    <p id="description" class="text-slate-300 text-sm leading-relaxed line-clamp-[12]">טוען תיאור...</p>
-                </div>
-                <div class="mt-6 pt-6 border-t border-slate-700 grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-[10px] text-slate-500 uppercase">מגזר</p>
-                        <p id="sector" class="font-bold text-xs text-green-400">---</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] text-slate-500 uppercase">תעשייה</p>
-                        <p id="industry" class="font-bold text-xs">---</p>
-                    </div>
-                </div>
+            <div class="card p-6">
+                <h3 class="font-bold text-slate-800 mb-4 border-b pb-2">אודות החברה</h3>
+                <p id="description" class="text-slate-600 text-sm leading-relaxed overflow-y-auto max-h-[400px]">טוען תיאור מפורט...</p>
             </div>
         </div>
 
-        <div id="tab-data" class="tab-content hidden overflow-x-auto">
-            <div class="card p-6">
-                <table class="w-full text-right" id="data-table">
-                    </table>
-            </div>
+        <div id="tab-data-container" class="tab-content hidden-tab card overflow-x-auto">
+            <table class="w-full" id="financial-table">
+                </table>
         </div>
     </main>
 
-    <div id="customize-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50">
-        <div class="card p-10 max-w-md w-full mx-4">
-            <h2 class="text-2xl font-black mb-6">מה חשוב לך לראות?</h2>
-            <div id="options-list" class="space-y-4 mb-8">
-                </div>
-            <button onclick="savePreferences()" class="w-full bg-green-600 py-4 rounded-xl font-bold uppercase tracking-widest text-sm">שמור הגדרות</button>
+    <div id="customize-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-3xl max-w-sm w-full shadow-2xl">
+            <h2 class="text-xl font-bold mb-4">התאמת תצוגה</h2>
+            <p class="text-sm text-slate-500 mb-6">בחר את הנתונים שיופיעו בגישה המהירה:</p>
+            <div class="space-y-3 mb-8">
+                <label class="flex items-center gap-2"><input type="checkbox" checked> שווי שוק</label>
+                <label class="flex items-center gap-2"><input type="checkbox" checked> מכפיל P/E</label>
+                <label class="flex items-center gap-2"><input type="checkbox" checked> תשואת דיבידנד</label>
+            </div>
+            <button onclick="document.getElementById('customize-modal').classList.add('hidden')" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">שמור שינויים</button>
         </div>
     </div>
 
@@ -99,125 +80,104 @@
     <script>
         const API_KEY = "UV80D7jta2txt3SXBbVyCAJNXaGQ1ZRT";
         const symbol = new URLSearchParams(window.location.search).get('symbol')?.toUpperCase() || 'AAPL';
-        
-        let stockData = {};
 
-        async function init() {
-            document.getElementById('display-symbol').innerText = symbol;
-            await loadInitialInfo();
-            renderOverview();
-            loadFullFinancials(); // טוען הכל ברקע
+        async function loadPageData() {
+            try {
+                // 1. נתוני מחיר ופרופיל
+                const [qRes, pRes] = await Promise.all([
+                    fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${API_KEY}`).then(r => r.json()),
+                    fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${API_KEY}`).then(r => r.json())
+                ]);
+
+                if(qRes[0]) {
+                    const q = qRes[0];
+                    document.getElementById('ticker').innerText = q.symbol;
+                    document.getElementById('companyName').innerText = q.name;
+                    
+                    const stats = [
+                        {label: 'מחיר', val: '$' + q.price.toLocaleString()},
+                        {label: 'שווי שוק', val: (q.marketCap/1e9).toFixed(2) + 'B'},
+                        {label: 'P/E', val: q.pe || 'N/A'},
+                        {label: 'שינוי יומי', val: q.changesPercentage.toFixed(2) + '%'},
+                        {label: 'גבוה שנתי', val: '$' + q.yearHigh},
+                        {label: 'נמוך שנתי', val: '$' + q.yearLow}
+                    ];
+                    document.getElementById('quick-stats').innerHTML = stats.map(s => `
+                        <div class="card p-4">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">${s.label}</p>
+                            <p class="text-lg font-black text-slate-800">${s.val}</p>
+                        </div>
+                    `).join('');
+                }
+
+                if(pRes[0]) {
+                    document.getElementById('description').innerText = pRes[0].description;
+                }
+
+                // טעינת גרף
+                new TradingView.widget({
+                    "container_id": "tv-chart", "symbol": symbol, "width": "100%", "height": "100%",
+                    "interval": "D", "theme": "light", "style": "1", "locale": "he_IL"
+                });
+
+            } catch(e) { console.error("Error:", e); }
         }
 
-        async function loadInitialInfo() {
-            const [quote, profile] = await Promise.all([
-                fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${API_KEY}`).then(r => r.json()),
-                fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${API_KEY}`).then(r => r.json())
-            ]);
-
-            if (quote[0]) {
-                const q = quote[0];
-                document.getElementById('company-name').innerText = q.name;
-                document.getElementById('live-price').innerText = `$${q.price.toLocaleString()}`;
-                const change = q.changesPercentage;
-                document.getElementById('price-change').innerText = `${change > 0 ? '+' : ''}${change.toFixed(2)}%`;
-                document.getElementById('price-change').className = `text-lg font-bold ${change >= 0 ? 'positive' : 'negative'}`;
-                
-                // נתונים מהירים
-                const quickStats = [
-                    { label: 'Market Cap', val: (q.marketCap/1e9).toFixed(2) + 'B' },
-                    { label: 'P/E Ratio', val: q.pe || 'N/A' },
-                    { label: '52W High', val: '$' + q.yearHigh }
-                ];
-                document.getElementById('custom-stats-bar').innerHTML = quickStats.map(s => `
-                    <div class="card p-4 text-center">
-                        <p class="text-[10px] text-slate-500 uppercase mb-1 font-bold">${s.label}</p>
-                        <p class="text-lg font-black">${s.val}</p>
-                    </div>
-                `).join('');
-            }
-
-            if (profile[0]) {
-                const p = profile[0];
-                document.getElementById('description').innerText = p.description;
-                document.getElementById('sector').innerText = p.sector;
-                document.getElementById('industry').innerText = p.industry;
-            }
-        }
-
-        function renderOverview() {
-            new TradingView.widget({
-                "container_id": "main-chart",
-                "symbol": symbol,
-                "interval": "D", "theme": "dark", "style": "1", "locale": "he_IL", "width": "100%", "height": "100%", "backgroundColor": "#1e293b"
-            });
-        }
-
-        async function changeTab(tabType) {
-            // עיצוב כפתורים
+        async function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-            document.getElementById(`tab-${tabType}-btn`).classList.add('tab-active');
+            document.getElementById('btn-' + tab).classList.add('tab-active');
 
-            if (tabType === 'overview') {
-                document.getElementById('tab-overview').classList.remove('hidden');
-                document.getElementById('tab-data').classList.add('hidden');
+            const dataContainer = document.getElementById('tab-data-container');
+            const overviewContainer = document.getElementById('tab-overview');
+
+            if(tab === 'overview') {
+                overviewContainer.classList.remove('hidden-tab');
+                dataContainer.classList.add('hidden-tab');
             } else {
-                document.getElementById('tab-overview').classList.add('hidden');
-                document.getElementById('tab-data').classList.remove('hidden');
-                loadTableData(tabType);
+                overviewContainer.classList.add('hidden-tab');
+                dataContainer.classList.remove('hidden-tab');
+                await loadFinancialTable(tab);
             }
         }
 
-        async function loadTableData(type) {
-            const table = document.getElementById('data-table');
-            table.innerHTML = '<p class="p-10 text-center text-slate-500">מושך נתונים גולמיים מהדוחות...</p>';
-            
+        async function loadFinancialTable(type) {
             let endpoint = '';
             let keys = [];
-            
-            if (type === 'income') {
+
+            if(type === 'income') {
                 endpoint = 'income-statement';
-                keys = ['date', 'revenue', 'grossProfit', 'operatingIncome', 'netIncome', 'eps'];
-            } else if (type === 'balance') {
+                keys = ['date', 'revenue', 'grossProfit', 'netIncome', 'eps'];
+            } else if(type === 'balance') {
                 endpoint = 'balance-sheet-statement';
-                keys = ['date', 'totalAssets', 'totalLiabilities', 'totalStockholdersEquity', 'netDebt'];
-            } else if (type === 'cashflow') {
+                keys = ['date', 'totalAssets', 'totalLiabilities', 'totalStockholdersEquity'];
+            } else if(type === 'cash') {
                 endpoint = 'cash-flow-statement';
                 keys = ['date', 'operatingCashFlow', 'capitalExpenditure', 'freeCashFlow'];
-            } else if (type === 'ratios') {
+            } else if(type === 'ratios') {
                 endpoint = 'ratios';
-                keys = ['date', 'currentRatio', 'returnOnEquity', 'priceToSalesRatio', 'debtEquityRatio'];
+                keys = ['date', 'currentRatio', 'returnOnEquity', 'dividendYield'];
             }
 
             const data = await fetch(`https://financialmodelingprep.com/api/v3/${endpoint}/${symbol}?limit=5&apikey=${API_KEY}`).then(r => r.json());
+            
+            let html = `<thead><tr>`;
+            keys.forEach(k => html += `<th>${k.toUpperCase()}</th>`);
+            html += `</tr></thead><tbody>`;
 
-            if (data && data.length > 0) {
-                let html = `<thead><tr class="table-header">`;
-                keys.forEach(k => html += `<th class="p-4 text-right">${k}</th>`);
-                html += `</tr></thead><tbody class="divide-y divide-slate-800">`;
-                
-                data.forEach(row => {
-                    html += `<tr class="data-row transition">`;
-                    keys.forEach(k => {
-                        let val = row[k];
-                        if (typeof val === 'number') {
-                            if (val > 1000000 || val < -1000000) val = (val / 1e6).toFixed(2) + 'M';
-                            else val = val.toFixed(2);
-                        }
-                        html += `<td class="p-4 font-bold ${val < 0 ? 'negative' : ''}">${val}</td>`;
-                    });
-                    html += `</tr>`;
+            data.forEach(row => {
+                html += `<tr>`;
+                keys.forEach(k => {
+                    let val = row[k];
+                    if(typeof val === 'number') val = val > 1e6 || val < -1e6 ? (val/1e6).toFixed(2) + 'M' : val.toFixed(2);
+                    html += `<td>${val || '---'}</td>`;
                 });
-                table.innerHTML = html + `</tbody>`;
-            }
+                html += `</tr>`;
+            });
+
+            document.getElementById('financial-table').innerHTML = html + `</tbody>`;
         }
 
-        function toggleCustomize() {
-            document.getElementById('customize-modal').style.display = 'flex';
-        }
-
-        init();
+        loadPageData();
     </script>
 </body>
 </html>
-
