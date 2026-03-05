@@ -6,48 +6,42 @@
     <title>FINLONG | הפורטפוליו שלי</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50">
-    <div class="max-w-6xl mx-auto p-8">
-        <header class="flex justify-between items-center mb-10">
-            <h1 class="text-4xl font-black">התיק שלי</h1>
-            <a href="settings.html" class="text-gray-400 hover:text-green-600">⚙️ הגדרות</a>
-        </header>
+<body class="bg-slate-50">
+    <nav class="bg-white border-b p-6 mb-8">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-black text-gray-800">התיק <span class="text-green-600">שלי</span></h1>
+            <a href="index.html" class="bg-gray-100 px-4 py-2 rounded-lg font-bold text-sm">חזרה לחיפוש</a>
+        </div>
+    </nav>
 
+    <main class="max-w-6xl mx-auto p-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                <p class="text-sm text-gray-400 font-bold uppercase">שווי כולל</p>
-                <p class="text-3xl font-black text-green-600">$42,500</p>
+            <div class="bg-green-600 text-white p-8 rounded-3xl shadow-lg">
+                <p class="text-sm opacity-80 font-bold uppercase mb-2">שווי תיק מוערך</p>
+                <p class="text-4xl font-black">$0.00</p>
             </div>
-            <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                <p class="text-sm text-gray-400 font-bold uppercase">רווח יומי</p>
-                <p class="text-3xl font-black text-green-600">+$840</p>
+            <div class="bg-white p-8 rounded-3xl border shadow-sm">
+                <p class="text-sm text-gray-400 font-bold uppercase mb-2">מניות במעקב</p>
+                <p class="text-4xl font-black">0</p>
             </div>
-            <div class="bg-white p-6 rounded-2xl border shadow-sm">
-                <p class="text-sm text-gray-400 font-bold uppercase">מניות במעקב</p>
-                <p class="text-3xl font-black">12</p>
+            <div class="bg-white p-8 rounded-3xl border shadow-sm">
+                <p class="text-sm text-gray-400 font-bold uppercase mb-2">התראות פעילות</p>
+                <p class="text-4xl font-black">0</p>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
-            <table class="w-full text-right">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="p-4">מניה</th>
-                        <th class="p-4">מחיר</th>
-                        <th class="p-4">שינוי</th>
-                        <th class="p-4">פעולות</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y">
-                    <tr>
-                        <td class="p-4 font-bold">GOOG</td>
-                        <td class="p-4">$142.50</td>
-                        <td class="p-4 text-green-600 font-bold">+1.2%</td>
-                        <td class="p-4"><a href="stock.html?symbol=GOOG" class="text-blue-500 text-sm">ניתוח</a></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="bg-white rounded-3xl border shadow-sm overflow-hidden">
+            <div class="p-8 border-b bg-gray-50 flex justify-between items-center">
+                <h3 class="font-bold text-lg">רשימת מניות</h3>
+                <button class="text-green-600 font-bold text-sm">+ הוספה מהירה</button>
+            </div>
+            <div class="p-20 text-center">
+                <div class="text-5xl mb-4">📂</div>
+                <h4 class="text-xl font-bold text-gray-800">התיק שלך ריק</h4>
+                <p class="text-gray-400 mb-6">התחל להוסיף מניות כדי לעקוב אחרי הביצועים שלהן.</p>
+                <a href="index.html" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold">חפש מניה ראשונה</a>
+            </div>
         </div>
-    </div>
+    </main>
 </body>
 </html>
