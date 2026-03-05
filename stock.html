@@ -3,139 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINLONG | ניתוח מניה</title>
+    <title>FINLONG | ניתוח עומק</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .tab-active { border-bottom: 3px solid #16a34a; color: #16a34a; font-weight: bold; }
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .tab-active { border-bottom: 4px solid #16a34a; color: #16a34a; font-weight: 800; }
+        .card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .hidden-tab { display: none; }
-        .stats-grid div { transition: all 0.3s; }
-        .stats-grid div:hover { background-color: #f0fdf4; }
+        .table-row:nth-child(even) { background-color: #f8fafc; }
+        .negative { color: #dc2626; }
+        .positive { color: #16a34a; }
     </style>
 </head>
-<body class="bg-slate-50 p-4 md:p-8">
-    <header class="max-w-6xl mx-auto flex justify-between items-end mb-8">
+<body class="p-4 md:p-10">
+
+    <header class="max-w-7xl mx-auto flex flex-wrap justify-between items-center mb-8 gap-4">
         <div>
-            <a href="index.html" class="text-xs text-green-600 font-bold hover:underline">← חזרה לדף הבית</a>
-            <h1 id="ticker" class="text-6xl font-black text-gray-900 uppercase tracking-tighter">---</h1>
-            <p id="companyName" class="text-gray-500 text-lg">טוען נתונים מה-API...</p>
+            <div class="flex items-center gap-3">
+                <h1 id="ticker" class="text-6xl font-black text-slate-900 uppercase">---</h1>
+                <div id="price-badge" class="px-3 py-1 rounded-full text-lg font-bold bg-slate-200">טוען...</div>
+            </div>
+            <p id="companyName" class="text-slate-500 text-xl font-medium mt-1">אנא המתן לטעינת הנתונים...</p>
         </div>
         <div class="flex gap-3">
-            <button onclick="handleAddToPortfolio()" class="bg-green-600 text-white px-8 py-4 rounded-2xl font-bold shadow-xl hover:bg-green-700 hover:scale-105 transition">הוסף לפורטפוליו</button>
+            <button onclick="openCustomize()" class="bg-white border-2 border-slate-200 px-5 py-3 rounded-2xl font-bold hover:bg-slate-50 transition flex items-center gap-2">
+                <span>⚙️</span> התאמה אישית
+            </button>
+            <button class="bg-green-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-green-200 hover:bg-green-700 transition">
+                + הוסף למעקב
+            </button>
         </div>
     </header>
 
-    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 stats-grid">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-            <p class="text-xs text-gray-400 font-bold uppercase mb-1">מחיר נוכחי</p>
-            <p id="price" class="text-3xl font-black">---</p>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-            <p class="text-xs text-gray-400 font-bold uppercase mb-1">מכפיל P/E</p>
-            <p id="pe" class="text-3xl font-black">---</p>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-            <p class="text-xs text-gray-400 font-bold uppercase mb-1">שווי שוק</p>
-            <p id="mktcap" class="text-3xl font-black">---</p>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-            <p class="text-xs text-gray-400 font-bold uppercase mb-1">שינוי יומי</p>
-            <p id="change" class="text-3xl font-black">---</p>
-        </div>
-    </div>
+    <section id="quick-stats" class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+        </section>
 
-    <main class="max-w-6xl mx-auto">
-        <nav class="flex gap-10 border-b mb-8 text-sm font-bold">
-            <button onclick="switchTab('overview')" id="btn-overview" class="tab-btn tab-active pb-3">סקירה וגרף</button>
-            <button onclick="switchTab('financials')" id="btn-financials" class="tab-btn text-gray-400 pb-3">דוחות כספיים</button>
-            <button onclick="switchTab('alerts')" id="btn-alerts" class="tab-btn text-gray-400 pb-3">התראות אישיות</button>
-        </nav>
+    <nav class="max-w-7xl mx-auto mb-8 border-b-2 border-slate-200">
+        <div class="flex gap-8 overflow-x-auto no-scrollbar pb-1">
+            <button onclick="switchTab('overview')" id="btn-overview" class="tab-btn tab-active pb-4 whitespace-nowrap">סקירה</button>
+            <button onclick="switchTab('chart')" id="btn-chart" class="tab-btn text-slate-400 pb-4 whitespace-nowrap">גרף טכני</button>
+            <button onclick="switchTab('income')" id="btn-income" class="tab-btn text-slate-400 pb-4 whitespace-nowrap">רווח והפסד</button>
+            <button onclick="switchTab('balance')" id="btn-balance" class="tab-btn text-slate-400 pb-4 whitespace-nowrap">מאזן</button>
+            <button onclick="switchTab('cash')" id="btn-cash" class="tab-btn text-slate-400 pb-4 whitespace-nowrap">תזרים מזומנים</button>
+            <button onclick="switchTab('ratios')" id="btn-ratios" class="tab-btn text-slate-400 pb-4 whitespace-nowrap">יחסים פיננסיים</button>
+        </div>
+    </nav>
 
+    <main class="max-w-7xl mx-auto">
+        
         <div id="tab-overview" class="tab-content space-y-6">
-            <div class="bg-white rounded-3xl border shadow-sm h-[550px] overflow-hidden">
-                <div id="tv-chart" class="h-full"></div>
-            </div>
-            <div class="bg-white p-8 rounded-3xl border shadow-sm">
-                <h3 class="text-xl font-bold mb-4">אודות החברה</h3>
-                <p id="description" class="text-gray-600 leading-relaxed">טוען תיאור חברה מפורט...</p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="card p-8 lg:col-span-2">
+                    <h3 class="text-2xl font-bold mb-4">תיאור חברה</h3>
+                    <p id="desc" class="text-slate-600 leading-relaxed text-lg">טוען נתונים...</p>
+                </div>
+                <div class="card p-8">
+                    <h3 class="text-2xl font-bold mb-4">מידע נוסף</h3>
+                    <div id="extra-info" class="space-y-4">
+                        </div>
+                </div>
             </div>
         </div>
 
-        <div id="tab-financials" class="tab-content hidden-tab bg-white p-8 rounded-3xl border shadow-sm">
-            <h3 class="text-xl font-bold mb-6">נתונים פיננסיים גולמיים</h3>
-            <div id="financial-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                </div>
+        <div id="tab-chart" class="tab-content hidden-tab card h-[650px] overflow-hidden">
+            <div id="tradingview_widget" class="h-full"></div>
         </div>
+
+        <div id="tab-income" class="tab-content hidden-tab card p-8 overflow-x-auto">
+            <h3 class="text-2xl font-bold mb-6">דו"ח רווח והפסד (שנתי)</h3>
+            <table class="w-full text-right" id="income-table"></table>
+        </div>
+
+        <div id="tab-balance" class="tab-content hidden-tab card p-8 overflow-x-auto">
+            <h3 class="text-2xl font-bold mb-6">מאזן (Balance Sheet)</h3>
+            <table class="w-full text-right" id="balance-table"></table>
+        </div>
+
+        <div id="tab-cash" class="tab-content hidden-tab card p-8 overflow-x-auto">
+            <h3 class="text-2xl font-bold mb-6">תזרים מזומנים</h3>
+            <table class="w-full text-right" id="cash-table"></table>
+        </div>
+
+        <div id="tab-ratios" class="tab-content hidden-tab card p-8 overflow-x-auto">
+            <h3 class="text-2xl font-bold mb-6">יחסים פיננסיים מרכזיים</h3>
+            <table class="w-full text-right" id="ratios-table"></table>
+        </div>
+
     </main>
 
-    <div id="auth-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-10 rounded-3xl max-w-sm w-full text-center shadow-2xl">
-            <h2 class="text-2xl font-bold mb-4">צריך להתחבר 🔒</h2>
-            <p class="text-gray-500 mb-8">כדי לשמור מניות בפורטפוליו ולהגדיר התראות, עליך להיות רשום במערכת.</p>
-            <a href="login.html" class="block w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-green-700 transition">התחברות / הרשמה</a>
-            <button onclick="closeModal()" class="mt-4 text-gray-400 text-sm hover:text-black">סגור</button>
+    <div id="customize-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
+        <div class="bg-white p-10 rounded-3xl max-w-lg w-full shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6">הגדרת נתונים מהירים</h2>
+            <p class="text-slate-500 mb-6">בחר אילו פרמטרים תרצה לראות בראש העמוד כברירת מחדל:</p>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <label class="flex items-center gap-2"><input type="checkbox" checked> שווי שוק</label>
+                <label class="flex items-center gap-2"><input type="checkbox" checked> מכפיל רווח</label>
+                <label class="flex items-center gap-2"><input type="checkbox" checked> תשואת דיבידנד</label>
+                <label class="flex items-center gap-2"><input type="checkbox" checked> EPS</label>
+                <label class="flex items-center gap-2"><input type="checkbox"> Beta</label>
+                <label class="flex items-center gap-2"><input type="checkbox"> יעד מחיר</label>
+            </div>
+            <button onclick="closeCustomize()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold">שמור העדפות</button>
         </div>
     </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        const API_KEY = "UV80D7jta2txt3SXBbVyCAJNXaGQ1ZRT"; // ה-API שלך מוטמע כאן
-        const symbol = new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
+        const API_KEY = "UV80D7jta2txt3SXBbVyCAJNXaGQ1ZRT";
+        const symbol = new URLSearchParams(window.location.search).get('symbol') || 'GOOG';
         
-        async function loadStockData() {
+        async function fetchAllData() {
             try {
-                // משיכת נתונים בסיסיים
-                const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${API_KEY}`);
-                const data = await res.json();
-                
-                // משיכת פרופיל חברה (תיאור)
-                const profileRes = await fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${API_KEY}`);
-                const profileData = await profileRes.json();
+                const [quote, profile, income, balance, cash, ratios] = await Promise.all([
+                    fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${API_KEY}`).then(r => r.json()),
+                    fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${API_KEY}`).then(r => r.json()),
+                    fetch(`https://financialmodelingprep.com/api/v3/income-statement/${symbol}?limit=5&apikey=${API_KEY}`).then(r => r.json()),
+                    fetch(`https://financialmodelingprep.com/api/v3/balance-sheet-statement/${symbol}?limit=5&apikey=${API_KEY}`).then(r => r.json()),
+                    fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/${symbol}?limit=5&apikey=${API_KEY}`).then(r => r.json()),
+                    fetch(`https://financialmodelingprep.com/api/v3/ratios/${symbol}?limit=5&apikey=${API_KEY}`).then(r => r.json())
+                ]);
 
-                if(data[0]) {
-                    const s = data[0];
-                    document.getElementById('ticker').innerText = s.symbol;
-                    document.getElementById('companyName').innerText = s.name;
-                    document.getElementById('price').innerText = "$" + s.price.toLocaleString();
-                    document.getElementById('pe').innerText = s.pe ? s.pe.toFixed(2) : "N/A";
-                    document.getElementById('mktcap').innerText = (s.marketCap / 1e9).toFixed(2) + "B";
-                    document.getElementById('change').innerText = s.changesPercentage.toFixed(2) + "%";
-                    document.getElementById('change').style.color = s.changesPercentage >= 0 ? "#16a34a" : "#dc2626";
-                }
-                if(profileData[0]) {
-                    document.getElementById('description').innerText = profileData[0].description;
-                }
-            } catch(e) { console.error("API Error:", e); }
+                renderQuote(quote[0], profile[0]);
+                renderTable('income-table', income, ['date', 'revenue', 'netIncome', 'eps']);
+                renderTable('balance-table', balance, ['date', 'totalAssets', 'totalLiabilities', 'totalStockholdersEquity']);
+                renderTable('cash-table', cash, ['date', 'operatingCashFlow', 'capitalExpenditure', 'freeCashFlow']);
+                renderTable('ratios-table', ratios, ['date', 'currentRatio', 'returnOnEquity', 'debtEquityRatio']);
+
+            } catch (e) { console.error("Error loading data", e); }
+        }
+
+        function renderQuote(q, p) {
+            if(!q) return;
+            document.getElementById('ticker').innerText = q.symbol;
+            document.getElementById('companyName').innerText = q.name;
+            document.getElementById('price-badge').innerText = `$${q.price.toLocaleString()}`;
+            document.getElementById('desc').innerText = p.description;
+            
+            const stats = [
+                {label: 'שווי שוק', val: (q.marketCap/1e9).toFixed(2) + 'B'},
+                {label: 'מכפיל P/E', val: q.pe || 'N/A'},
+                {label: 'נפח מסחר', val: (q.avgVolume/1e6).toFixed(1) + 'M'},
+                {label: 'גבוה שנתי', val: '$' + q.yearHigh},
+                {label: 'נמוך שנתי', val: '$' + q.yearLow},
+                {label: 'שינוי %', val: q.changesPercentage.toFixed(2) + '%'}
+            ];
+            
+            document.getElementById('quick-stats').innerHTML = stats.map(s => `
+                <div class="card p-5">
+                    <p class="text-xs text-slate-400 font-bold uppercase">${s.label}</p>
+                    <p class="text-xl font-black text-slate-800">${s.val}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderTable(id, data, keys) {
+            if(!data || data.length === 0) return;
+            const table = document.getElementById(id);
+            let html = `<thead><tr class="text-slate-400 text-sm">` + keys.map(k => `<th class="p-4">${k}</th>`).join('') + `</tr></thead><tbody>`;
+            data.forEach(row => {
+                html += `<tr class="table-row">` + keys.map(k => {
+                    let val = row[k];
+                    if(typeof val === 'number' && val > 1000) val = (val/1e6).toFixed(2) + 'M';
+                    return `<td class="p-4 font-bold text-slate-700">${val}</td>`;
+                }).join('') + `</tr>`;
+            });
+            table.innerHTML = html + `</tbody>`;
         }
 
         function switchTab(t) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden-tab'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-green-600'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-slate-900'));
             document.getElementById('tab-'+t).classList.remove('hidden-tab');
             document.getElementById('btn-'+t).classList.add('tab-active');
+            if(t === 'chart') loadChart();
         }
 
-        function handleAddToPortfolio() {
-            // סימולציה של בדיקת התחברות
-            const isLoggedIn = false; 
-            if(!isLoggedIn) {
-                document.getElementById('auth-modal').classList.remove('hidden');
-            }
+        function loadChart() {
+            new TradingView.widget({
+                "width": "100%", "height": "100%", "symbol": symbol,
+                "interval": "D", "timezone": "Etc/UTC", "theme": "light",
+                "style": "1", "locale": "he_IL", "container_id": "tradingview_widget"
+            });
         }
 
-        function closeModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+        function openCustomize() { document.getElementById('customize-modal').classList.remove('hidden'); }
+        function closeCustomize() { document.getElementById('customize-modal').classList.add('hidden'); }
 
-        new TradingView.widget({
-            "container_id": "tv-chart",
-            "symbol": symbol,
-            "interval": "D",
-            "theme": "light",
-            "style": "1",
-            "locale": "he_IL",
-            "width": "100%",
-            "height": "100%"
-        });
-
-        loadStockData();
+        fetchAllData();
     </script>
 </body>
 </html>
