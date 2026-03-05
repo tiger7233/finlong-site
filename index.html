@@ -6,25 +6,20 @@
     <title>FINLONG | ניהול השקעות חכם</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f8fafc; color: #1e293b; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; font-family: 'Segoe UI', sans-serif; }
         .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .hover-green:hover { border-color: #16a34a; background-color: #f0fdf4; transition: all 0.3s; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <nav class="bg-white border-b border-gray-200 p-4 sticky top-0 z-50">
+    <nav class="bg-white border-b p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-2">
                 <div class="bg-green-600 text-white p-2 rounded-lg font-bold">FL</div>
-                <h1 class="text-2xl font-black text-gray-800 tracking-tight">FIN<span class="text-green-600">LONG</span></h1>
+                <h1 class="text-2xl font-black text-gray-800">FIN<span class="text-green-600">LONG</span></h1>
             </div>
-            <div class="hidden md:flex gap-6 text-sm font-medium text-gray-600">
-                <a href="index.html" class="text-green-600 font-bold">דף הבית</a>
-                <a href="#" class="hover:text-green-600">הפורטפוליו שלי</a>
-                <a href="#" class="hover:text-green-600">מפת חום</a>
-            </div>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-full text-sm font-bold shadow-md transition">כניסה</button>
+            <button class="bg-green-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-md">כניסה</button>
         </div>
     </nav>
 
@@ -33,52 +28,23 @@
             
             <div class="lg:col-span-4 space-y-6">
                 <div class="card p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-lg font-bold">התיק שלי (לחץ למעבר לניתוח)</h2>
-                    </div>
-                    
+                    <h2 class="text-lg font-bold mb-6">התיק שלי</h2>
                     <div id="portfolio-list" class="space-y-4">
-                        <a href="stock.html?symbol=NASDAQ:GOOG" class="card p-4 flex justify-between items-center hover-green block border border-gray-100">
-                            <div>
-                                <div class="font-bold">GOOG</div>
-                                <div class="text-xs text-gray-500">Alphabet Inc.</div>
-                            </div>
+                        <a href="./stock.html?symbol=GOOG" class="card p-4 flex justify-between items-center hover-green block border border-gray-100">
+                            <div class="font-bold">GOOG</div>
                             <div class="text-left font-bold text-green-600">+1.45%</div>
                         </a>
-
-                        <a href="stock.html?symbol=NASDAQ:CPRT" class="card p-4 flex justify-between items-center hover-green block border border-gray-100">
-                            <div>
-                                <div class="font-bold">CPRT</div>
-                                <div class="text-xs text-gray-500">Copart, Inc.</div>
-                            </div>
+                        <a href="./stock.html?symbol=CPRT" class="card p-4 flex justify-between items-center hover-green block border border-gray-100">
+                            <div class="font-bold">CPRT</div>
                             <div class="text-left font-bold text-red-500">-0.21%</div>
                         </a>
-
-                        <a href="stock.html?symbol=AMEX:XLK" class="card p-4 flex justify-between items-center hover-green block border border-gray-100">
-                            <div>
-                                <div class="font-bold">XLK</div>
-                                <div class="text-xs text-gray-500">Technology Select Sector</div>
-                            </div>
-                            <div class="text-left font-bold text-green-600">+0.88%</div>
-                        </a>
                     </div>
-
-                    <div class="mt-6 flex gap-2">
-                        <input id="stock-input" type="text" placeholder="הוסף סימול..." class="flex-grow border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-green-500 outline-none">
-                        <button onclick="addStock()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-bold">הוסף</button>
-                    </div>
-                </div>
-
-                <div class="card p-6 bg-green-600 text-white shadow-xl">
-                    <h2 class="text-lg font-bold mb-2">התראות מחיר ומכפילים</h2>
-                    <p class="text-green-100 text-sm mb-4">אל תפספס הזדמנויות. הגדר התראה וקבל הודעה כשהמניה מגיעה ליעד.</p>
-                    <button class="w-full bg-white text-green-700 py-2 rounded-lg font-bold text-sm hover:bg-green-50">הגדר התראה</button>
                 </div>
             </div>
 
             <div class="lg:col-span-8">
                 <div class="card p-6 h-full">
-                    <h2 class="text-lg font-bold mb-4">מפת חום - S&P 500</h2>
+                    <h2 class="text-lg font-bold mb-4">מפת חום (לחץ לניתוח פנימי)</h2>
                     <div class="h-[600px] w-full bg-gray-50 rounded-lg overflow-hidden border">
                         <div class="tradingview-widget-container h-full">
                             <div class="tradingview-widget-container__widget h-full"></div>
@@ -90,8 +56,12 @@
                                 "blockSize": "market_cap",
                                 "blockColor": "change",
                                 "locale": "he_IL",
+                                "symbolUrl": "stock.html?symbol={symbol}", 
                                 "colorTheme": "light",
                                 "hasTopBar": true,
+                                "isDataSetEnabled": true,
+                                "isZoomEnabled": true,
+                                "hasSymbolTooltip": true,
                                 "width": "100%",
                                 "height": "100%"
                             }
@@ -102,21 +72,5 @@
             </div>
         </div>
     </main>
-
-    <script>
-        function addStock() {
-            const input = document.getElementById('stock-input');
-            const ticker = input.value.toUpperCase();
-            if (ticker) {
-                const list = document.getElementById('portfolio-list');
-                const a = document.createElement('a');
-                a.href = `stock.html?symbol=${ticker}`;
-                a.className = "card p-4 flex justify-between items-center hover-green block border border-gray-100 animate-pulse";
-                a.innerHTML = `<div><div class="font-bold">${ticker}</div><div class="text-xs text-gray-500">נוסף לרשימה</div></div><div class="text-left font-bold text-gray-400">---</div>`;
-                list.appendChild(a);
-                input.value = '';
-            }
-        }
-    </script>
 </body>
 </html>
