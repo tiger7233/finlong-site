@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINLONG | הגדרות</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-2xl mx-auto bg-white p-10 rounded-3xl shadow-sm border">
+        <h1 class="text-3xl font-black mb-8">הגדרות תצוגה</h1>
+        
+        <div class="space-y-8">
+            <div class="flex justify-between items-center pb-4 border-b">
+                <div>
+                    <p class="font-bold text-gray-800">פורמט מספרים</p>
+                    <p class="text-xs text-gray-400">הצג שווי שוק במיליארדים (B)</p>
+                </div>
+                <input type="checkbox" checked class="w-6 h-6 accent-green-600">
+            </div>
+
+            <div class="flex justify-between items-center pb-4 border-b">
+                <div>
+                    <p class="font-bold text-gray-800">התראות מייל</p>
+                    <p class="text-xs text-gray-400">קבל התראה כשמניה מגיעה ליעד</p>
+                </div>
+                <input type="checkbox" checked class="w-6 h-6 accent-green-600">
+            </div>
+
+            <div class="flex justify-between items-center pb-4 border-b">
+                <div>
+                    <p class="font-bold text-gray-800">מטבע ברירת מחדל</p>
+                    <p class="text-xs text-gray-400">שנה את המטבע המוצג בתיק</p>
+                </div>
+                <select class="border rounded p-1 text-sm"><option>USD ($)</option><option>ILS (₪)</option></select>
+            </div>
+        </div>
+        
+        <button class="mt-10 w-full bg-gray-100 text-gray-800 py-3 rounded-xl font-bold hover:bg-gray-200">שמור הגדרות</button>
+    </div>
+</body>
+</html>
