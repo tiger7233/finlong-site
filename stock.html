@@ -3,111 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINLONG | ניתוח מניה</title>
+    <title>FINLONG | ניתוח מעמיק</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f8fafc; color: #1e293b; font-family: 'Segoe UI', sans-serif; }
-        .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .green-text { color: #16a34a; }
+        body { background-color: #f8fafc; font-family: 'Segoe UI', sans-serif; }
+        .tab-active { border-bottom: 3px solid #16a34a; color: #16a34a; font-weight: bold; }
+        .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .hidden-tab { display: none; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-2 md:p-6">
 
-    <header class="max-w-6xl mx-auto flex justify-between items-center mb-8">
-        <div class="flex items-center gap-4">
-            <a href="index.html" class="text-gray-500 hover:text-green-600">→ חזרה</a>
-            <h1 id="stock-title" class="text-3xl font-black text-gray-800 uppercase">טוען...</h1>
+    <header class="max-w-7xl mx-auto mb-6">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <a href="index.html" class="text-sm text-gray-500 hover:text-green-600 font-bold">← חזרה לתיק</a>
+                <h1 id="ticker-name" class="text-4xl font-black text-gray-800">טוען...</h1>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="openWatchlistModal()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-black">+ הוסף למעקב</button>
+                <button onclick="toggleCustomize()" class="border border-green-600 text-green-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-50">⚙️ התאמה אישית</button>
+            </div>
         </div>
-        <div class="text-left">
-            <div id="stock-price" class="text-2xl font-bold text-green-600">$---.--</div>
-            <div id="stock-change" class="text-sm font-semibold">--%</div>
+
+        <div id="quick-stats" class="grid grid-cols-2 md:grid-cols-6 gap-4 py-4 bg-white rounded-xl border border-gray-100 px-6 shadow-sm">
+            <div data-stat="price">
+                <p class="text-xs text-gray-400 uppercase">מחיר</p>
+                <p class="text-lg font-bold text-green-600" id="live-price">טוען...</p>
+            </div>
+            <div data-stat="mktcap">
+                <p class="text-xs text-gray-400 uppercase">שווי שוק</p>
+                <p class="text-lg font-bold" id="live-mktcap">---</p>
+            </div>
+            <div data-stat="pe">
+                <p class="text-xs text-gray-400 uppercase">מכפיל רווח</p>
+                <p class="text-lg font-bold" id="live-pe">---</p>
+            </div>
+            <div data-stat="roi">
+                <p class="text-xs text-gray-400 uppercase">ROI</p>
+                <p class="text-lg font-bold" id="live-roi">---</p>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <div class="lg:col-span-2 space-y-6">
-            <div class="card p-6 h-[450px]">
-                <h2 class="text-lg font-bold mb-4">גרף ביצועים</h2>
-                <div id="tradingview_chart" class="h-full"></div>
-            </div>
+    <nav class="max-w-7xl mx-auto mb-6 border-b border-gray-200">
+        <div class="flex gap-6 overflow-x-auto no-scrollbar pb-1 text-sm md:text-base">
+            <button onclick="showTab('overview')" id="btn-overview" class="tab-btn tab-active pb-2">סקירה</button>
+            <button onclick="showTab('chart')" id="btn-chart" class="tab-btn pb-2 text-gray-500">גרף</button>
+            <button onclick="showTab('income')" id="btn-income" class="tab-btn pb-2 text-gray-500">רווח והפסד</button>
+            <button onclick="showTab('balance')" id="btn-balance" class="tab-btn pb-2 text-gray-500">מאזן</button>
+            <button onclick="showTab('cashflow')" id="btn-cashflow" class="tab-btn pb-2 text-gray-500">תזרים</button>
+            <button onclick="showTab('ratios')" id="btn-ratios" class="tab-btn pb-2 text-gray-500">יחסים</button>
+        </div>
+    </nav>
 
-            <div class="card p-6">
-                <h2 class="text-lg font-bold mb-4">נתוני מאזן ודוחות (Balance Sheet)</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="p-3 bg-gray-50 rounded">
-                        <div class="text-xs text-gray-500 uppercase">שווי שוק</div>
-                        <div class="font-bold">1.85T</div>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded">
-                        <div class="text-xs text-gray-500 uppercase">מכפיל רווח (P/E)</div>
-                        <div class="font-bold">28.4</div>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded">
-                        <div class="text-xs text-gray-500 uppercase">ROI</div>
-                        <div class="font-bold text-green-600">12.5%</div>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded">
-                        <div class="text-xs text-gray-500 uppercase">דיבידנד</div>
-                        <div class="font-bold">0.45%</div>
-                    </div>
+    <main class="max-w-7xl mx-auto">
+        
+        <div id="tab-overview" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-6 md:col-span-2">
+                    <h3 class="font-bold mb-4">פרופיל חברה</h3>
+                    <p id="company-desc" class="text-gray-600 leading-relaxed">טוען תיאור חברה...</p>
                 </div>
-                
-                <table class="w-full mt-6 text-sm text-right">
-                    <thead>
-                        <tr class="border-b text-gray-400">
-                            <th class="pb-2">נתון פיננסי</th>
-                            <th class="pb-2">2025</th>
-                            <th class="pb-2">2024</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y">
-                        <tr><td class="py-3 font-medium">סך נכסים</td><td>$402B</td><td>$380B</td></tr>
-                        <tr><td class="py-3 font-medium">סך התחייבויות</td><td>$115B</td><td>$110B</td></tr>
-                        <tr><td class="py-3 font-medium">תזרים מזומנים חופשי</td><td class="text-green-600">$65B</td><td class="text-green-600">$60B</td></tr>
-                    </tbody>
-                </table>
+                <div class="card p-6">
+                    <h3 class="font-bold mb-4">נתוני אמת (Fundamental)</h3>
+                    <div id="tradingview-mini-script"></div>
+                </div>
             </div>
         </div>
 
-        <div class="space-y-6">
-            <div class="card p-6 border-t-4 border-green-600">
-                <h2 class="text-lg font-bold mb-2">התראה בהתאמה אישית</h2>
-                <p class="text-sm text-gray-500 mb-4">הגדר מתי לקבל התראה למייל על המניה הזו:</p>
-                <div class="space-y-3">
-                    <label class="block text-xs font-bold uppercase">מחיר יעד ($)</label>
-                    <input type="number" placeholder="180.00" class="w-full border p-2 rounded">
-                    <label class="block text-xs font-bold uppercase">מכפיל יעד</label>
-                    <input type="number" placeholder="25.0" class="w-full border p-2 rounded">
-                    <button class="w-full bg-green-600 text-white font-bold py-2 rounded-lg mt-2 shadow-lg">שמור התראה</button>
-                </div>
+        <div id="tab-chart" class="tab-content hidden-tab h-[600px] card overflow-hidden">
+            <div id="tv-advanced-chart" class="h-full"></div>
+        </div>
+
+        <div id="tab-balance" class="tab-content hidden-tab card p-8">
+            <h3 class="text-xl font-bold mb-6">מאזן (Balance Sheet) - נתונים חיים</h3>
+            <div class="h-[500px]">
+                <div class="tradingview-widget-container" id="tv-financials"></div>
             </div>
         </div>
     </main>
 
+    <div id="watchlist-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[100]">
+        <div class="bg-white p-8 rounded-2xl max-w-md w-full mx-4">
+            <h2 class="text-xl font-bold mb-4">הוספה לרשימת מעקב</h2>
+            <p class="text-gray-500 text-sm mb-4">למה אתה מוסיף את <span id="modal-ticker" class="font-bold text-black"></span> למעקב?</p>
+            <textarea placeholder="לדוגמה: מחכה לפריצה של רמת התמיכה..." class="w-full border rounded-lg p-3 mb-4 h-24 text-sm"></textarea>
+            <select class="w-full border rounded-lg p-3 mb-6 text-sm">
+                <option>רשימה ראשית</option>
+                <option>מניות צמיחה</option>
+                <option>דיבידנדים</option>
+            </select>
+            <div class="flex gap-2">
+                <button onclick="closeWatchlistModal()" class="flex-1 py-2 text-gray-500 font-bold">ביטול</button>
+                <button class="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold shadow-lg">שמור</button>
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // קבלת שם המניה מהכתובת
         const urlParams = new URLSearchParams(window.location.search);
-        const symbol = urlParams.get('symbol') || 'GOOG';
-        document.getElementById('stock-title').innerText = symbol;
+        const symbol = urlParams.get('symbol') || 'AAPL';
+        document.getElementById('ticker-name').innerText = symbol;
+        document.getElementById('modal-ticker').innerText = symbol;
 
-        // טעינת גרף חי של TradingView
-        new TradingView.widget({
-            "autosize": true,
-            "symbol": symbol,
-            "interval": "D",
-            "timezone": "Etc/UTC",
-            "theme": "light",
-            "style": "1",
-            "locale": "he_IL",
-            "toolbar_bg": "#f1f3f6",
-            "enable_publishing": false,
-            "hide_side_toolbar": false,
-            "allow_symbol_change": true,
-            "container_id": "tradingview_chart"
-        });
+        // ניהול לשוניות
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden-tab'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-green-600'));
+            
+            document.getElementById('tab-' + tabName).classList.remove('hidden-tab');
+            document.getElementById('btn-' + tabName).classList.add('tab-active');
+
+            if(tabName === 'chart') loadAdvancedChart();
+            if(tabName === 'balance' || tabName === 'income') loadFinancials();
+        }
+
+        // טעינת גרף מתקדם
+        function loadAdvancedChart() {
+            new TradingView.widget({
+                "container_id": "tv-advanced-chart",
+                "width": "100%", "height": "100%",
+                "symbol": symbol, "interval": "D", "theme": "light", "style": "1", "locale": "he_IL"
+            });
+        }
+
+        // טעינת נתונים פיננסיים (מאזן/רווח והפסד) מ-TradingView
+        function loadFinancials() {
+            const container = document.getElementById('tv-financials');
+            container.innerHTML = ""; // ניקוי
+            const script = document.createElement('script');
+            script.src = "https://s3.tradingview.com/external-embedding/embed-widget-financials.js";
+            script.async = true;
+            script.innerHTML = JSON.stringify({
+                "symbol": symbol, "colorTheme": "light", "isTransparent": false,
+                "displayMode": "regular", "width": "100%", "height": "100%", "locale": "he_IL"
+            });
+            container.appendChild(script);
+        }
+
+        // פונקציות מודל
+        function openWatchlistModal() { document.getElementById('watchlist-modal').classList.remove('hidden'); }
+        function closeWatchlistModal() { document.getElementById('watchlist-modal').classList.add('hidden'); }
+
+        // התאמה אישית - הדמיה
+        function toggleCustomize() {
+            alert("מצב עריכה: בחר אילו נתונים להציג בראש העמוד. (בקרוב נחבר את זה ל-LocalStorage)");
+        }
+
+        // טעינה ראשונית
+        showTab('overview');
     </script>
 </body>
-
 </html>
