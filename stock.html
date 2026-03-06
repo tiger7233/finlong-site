@@ -2,86 +2,78 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>FINLONG | Personal Dashboard</title>
+    <title>FINLONG | ניתוח מניה</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #f8fafc; font-family: system-ui, sans-serif; }
-        .widget-box { background: white; border-radius: 12px; border: 1px solid #e2e8f0; height: 400px; overflow: hidden; }
-        .hidden-widget { display: none; }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://s3.tradingview.com/tv.js"></script>
 </head>
-<body class="p-6">
+<body class="bg-slate-50 p-6">
 
-    <header class="max-w-7xl mx-auto flex justify-between items-center mb-8">
+    <nav class="max-w-7xl mx-auto flex justify-between items-center mb-10 bg-white p-4 rounded-2xl shadow-sm">
+        <div class="flex gap-6 items-center">
+            <a href="index.html" class="text-2xl font-black text-green-600">FINLONG</a>
+            <div class="hidden md:flex gap-4 font-bold text-slate-500">
+                <a href="index.html">ראשי</a>
+                <a href="portfolio.html">פורטפוליו</a>
+            </div>
+        </div>
+        <div id="user-area">
+            <a href="login.html" class="bg-slate-100 px-4 py-2 rounded-xl font-bold">התחברות</a>
+        </div>
+    </nav>
+
+    <header class="max-w-7xl mx-auto flex justify-between items-end mb-8">
         <div>
-            <h1 id="header-ticker" class="text-4xl font-black text-slate-800 uppercase">AAPL</h1>
-            <p id="header-name" class="text-slate-500">Apple Inc.</p>
+            <h1 id="ticker" class="text-5xl font-black uppercase">---</h1>
+            <p id="companyName" class="text-slate-500 text-xl">טוען...</p>
         </div>
-        <div class="flex gap-4">
-            <button onclick="toggleModal()" class="bg-slate-800 text-white px-6 py-2 rounded-xl font-bold">⚙️ הגדרת תצוגה</button>
-        </div>
+        <button onclick="addToPortfolio()" class="bg-green-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg">הוסף לפורטפוליו</button>
     </header>
 
-    <main id="dashboard" class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        </main>
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div id="chart" class="h-[500px] bg-white rounded-3xl border overflow-hidden"></div>
+        <div id="fin" class="h-[500px] bg-white rounded-3xl border overflow-hidden"></div>
+    </main>
 
-    <div id="setup-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center">
-        <div class="bg-white p-8 rounded-2xl max-w-md w-full">
-            <h2 class="text-xl font-bold mb-4">מה להציג בדף הסקירה?</h2>
-            <div class="space-y-3 mb-6">
-                <label class="flex items-center gap-2"><input type="checkbox" class="w-check" value="chart" checked> גרף טכני</label>
-                <label class="flex items-center gap-2"><input type="checkbox" class="w-check" value="financials" checked> דוחות כספיים</label>
-                <label class="flex items-center gap-2"><input type="checkbox" class="w-check" value="news"> חדשות מניות</label>
-                <label class="flex items-center gap-2"><input type="checkbox" class="w-check" value="profile"> פרופיל חברה</label>
-            </div>
-            <button onclick="saveDashboard()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">עדכן תצוגה</button>
-        </div>
-    </div>
-
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        const symbol = new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
-        
-        function saveDashboard() {
-            const selected = Array.from(document.querySelectorAll('.w-check:checked')).map(cb => cb.value);
-            renderDashboard(selected);
-            toggleModal();
+        const _supabase = supabase.createClient('https://mnbiqzzsaoljxskpznpl.supabase.co', 'sb_publishable_JBKyyXYWOzqomjnohXBKRA_w6cD0fyZ');
+        const symbol = new URLSearchParams(window.location.search).get('symbol')?.toUpperCase() || 'AAPL';
+
+        async function init() {
+            document.getElementById('ticker').innerText = symbol;
+            checkUser();
+            loadWidgets();
         }
 
-        function renderDashboard(widgets) {
-            const container = document.getElementById('dashboard');
-            container.innerHTML = ''; // ניקוי
-
-            widgets.forEach(w => {
-                const div = document.createElement('div');
-                div.className = 'widget-box p-2';
-                div.id = `container-${w}`;
-                container.appendChild(div);
-
-                if(w === 'chart') {
-                    new TradingView.widget({"symbol": symbol, "container_id": div.id, "width": "100%", "height": "100%", "theme": "light", "style": "1"});
-                } else if(w === 'financials') {
-                    injectTVWidget(div.id, "embed-widget-financials");
-                } else if(w === 'news') {
-                    injectTVWidget(div.id, "embed-widget-timeline");
-                } else if(w === 'profile') {
-                    injectTVWidget(div.id, "embed-widget-symbol-profile");
-                }
-            });
+        async function checkUser() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (user) {
+                document.getElementById('user-area').innerHTML = `<span class="font-bold ml-4">${user.email}</span><button onclick="logout()" class="text-red-500 font-bold">יציאה</button>`;
+            }
         }
 
-        function injectTVWidget(id, type) {
+        async function addToPortfolio() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                alert("עליך להירשם כדי להוסיף מניות לפורטפוליו");
+                window.location.href = 'login.html';
+                return;
+            }
+            alert("מבצע הוספה לתיק של " + user.email);
+            // כאן נכניס בעתיד את ה-Insert לטבלה
+        }
+
+        function loadWidgets() {
+            new TradingView.widget({"container_id": "chart", "symbol": symbol, "width": "100%", "height": "100%", "theme": "light"});
+            // ווידג'ט דוחות
             const script = document.createElement('script');
-            script.src = `https://s3.tradingview.com/external-embedding/${type}.js`;
-            script.async = true;
-            script.innerHTML = JSON.stringify({ "symbol": symbol, "colorTheme": "light", "width": "100%", "height": "100%" });
-            document.getElementById(id).appendChild(script);
+            script.src = "https://s3.tradingview.com/external-embedding/embed-widget-financials.js";
+            script.innerHTML = JSON.stringify({"symbol": symbol, "width": "100%", "height": "100%"});
+            document.getElementById('fin').appendChild(script);
         }
 
-        function toggleModal() { document.getElementById('setup-modal').classList.toggle('hidden'); }
-
-        // טעינה ראשונית
-        renderDashboard(['chart', 'financials']);
+        async function logout() { await _supabase.auth.signOut(); location.reload(); }
+        init();
     </script>
 </body>
 </html>
