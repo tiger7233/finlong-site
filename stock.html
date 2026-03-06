@@ -2,125 +2,86 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FINLONG | ניתוח מניה</title>
+    <title>FINLONG | Personal Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; }
-        .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .tab-active { color: #16a34a; border-bottom: 3px solid #16a34a; font-weight: 800; }
-        .hidden-tab { display: none; }
-        .positive { color: #16a34a; }
-        .negative { color: #dc2626; }
+        body { background-color: #f8fafc; font-family: system-ui, sans-serif; }
+        .widget-box { background: white; border-radius: 12px; border: 1px solid #e2e8f0; height: 400px; overflow: hidden; }
+        .hidden-widget { display: none; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-6">
 
-    <header class="max-w-7xl mx-auto flex flex-wrap justify-between items-center mb-8 gap-4">
+    <header class="max-w-7xl mx-auto flex justify-between items-center mb-8">
         <div>
-            <div class="flex items-center gap-3">
-                <a href="index.html" class="text-3xl font-black text-green-600">FINLONG</a>
-                <h1 id="ticker" class="text-4xl font-bold uppercase text-slate-800 border-r-2 pr-3 border-slate-300">---</h1>
-            </div>
-            <p id="companyName" class="text-slate-500 font-medium">מתחבר לנתוני מסחר...</p>
+            <h1 id="header-ticker" class="text-4xl font-black text-slate-800 uppercase">AAPL</h1>
+            <p id="header-name" class="text-slate-500">Apple Inc.</p>
         </div>
-        <div class="flex gap-3">
-            <button class="bg-white border border-slate-300 px-5 py-2 rounded-xl font-bold hover:bg-slate-50">⚙️ התאמה</button>
-            <button class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:bg-green-700 transition">הוסף למעקב</button>
+        <div class="flex gap-4">
+            <button onclick="toggleModal()" class="bg-slate-800 text-white px-6 py-2 rounded-xl font-bold">⚙️ הגדרת תצוגה</button>
         </div>
     </header>
 
-    <section id="quick-stats" class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-        </section>
+    <main id="dashboard" class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+        </main>
 
-    <nav class="max-w-7xl mx-auto mb-6 border-b-2 border-slate-100 overflow-x-auto">
-        <div class="flex gap-8 pb-1">
-            <button onclick="switchTab('overview')" id="btn-overview" class="tab-btn tab-active pb-3">סקירה</button>
-            <button onclick="switchTab('financials')" id="btn-financials" class="tab-btn text-slate-400 pb-3">דוחות כספיים</button>
+    <div id="setup-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center">
+        <div class="bg-white p-8 rounded-2xl max-w-md w-full">
+            <h2 class="text-xl font-bold mb-4">מה להציג בדף הסקירה?</h2>
+            <div class="space-y-3 mb-6">
+                <label class="flex items-center gap-2"><input type="checkbox" class="w-check" value="chart" checked> גרף טכני</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="w-check" value="financials" checked> דוחות כספיים</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="w-check" value="news"> חדשות מניות</label>
+                <label class="flex items-center gap-2"><input type="checkbox" class="w-check" value="profile"> פרופיל חברה</label>
+            </div>
+            <button onclick="saveDashboard()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">עדכן תצוגה</button>
         </div>
-    </nav>
-
-    <main class="max-w-7xl mx-auto">
-        <div id="tab-overview" class="tab-content h-[600px] card overflow-hidden">
-            <div id="tv-main-chart" class="h-full"></div>
-        </div>
-
-        <div id="tab-financials" class="tab-content hidden-tab h-[600px] card p-4">
-             <div id="tv-financials-widget" class="h-full"></div>
-        </div>
-    </main>
+    </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        const API_KEY = "UV80D7jta2txt3SXBbVyCAJNXaGQ1ZRT";
-        const symbol = new URLSearchParams(window.location.search).get('symbol')?.toUpperCase() || 'AAPL';
+        const symbol = new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
+        
+        function saveDashboard() {
+            const selected = Array.from(document.querySelectorAll('.w-check:checked')).map(cb => cb.value);
+            renderDashboard(selected);
+            toggleModal();
+        }
 
-        async function init() {
-            document.getElementById('ticker').innerText = symbol;
-            
-            // טעינת הגרף (זה תמיד עובד)
-            new TradingView.widget({
-                "container_id": "tv-main-chart", "symbol": symbol, "width": "100%", "height": "100%",
-                "interval": "D", "theme": "light", "style": "1", "locale": "he_IL"
+        function renderDashboard(widgets) {
+            const container = document.getElementById('dashboard');
+            container.innerHTML = ''; // ניקוי
+
+            widgets.forEach(w => {
+                const div = document.createElement('div');
+                div.className = 'widget-box p-2';
+                div.id = `container-${w}`;
+                container.appendChild(div);
+
+                if(w === 'chart') {
+                    new TradingView.widget({"symbol": symbol, "container_id": div.id, "width": "100%", "height": "100%", "theme": "light", "style": "1"});
+                } else if(w === 'financials') {
+                    injectTVWidget(div.id, "embed-widget-financials");
+                } else if(w === 'news') {
+                    injectTVWidget(div.id, "embed-widget-timeline");
+                } else if(w === 'profile') {
+                    injectTVWidget(div.id, "embed-widget-symbol-profile");
+                }
             });
-
-            // ניסיון למשוך נתונים מה-API החדש
-            try {
-                const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${API_KEY}`);
-                const data = await res.json();
-                
-                if (data && data[0]) {
-                    renderStats(data[0]);
-                } else {
-                    useFallbackStats();
-                }
-            } catch (e) {
-                useFallbackStats();
-            }
         }
 
-        function renderStats(q) {
-            document.getElementById('companyName').innerText = q.name;
-            const stats = [
-                {label: 'מחיר', val: '$' + q.price.toLocaleString()},
-                {label: 'שווי שוק', val: (q.marketCap/1e9).toFixed(2) + 'B'},
-                {label: 'P/E', val: q.pe || 'N/A'},
-                {label: 'שינוי', val: q.changesPercentage.toFixed(2) + '%'}
-            ];
-            document.getElementById('quick-stats').innerHTML = stats.map(s => `
-                <div class="card p-4">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">${s.label}</p>
-                    <p class="text-lg font-black">${s.val}</p>
-                </div>
-            `).join('');
+        function injectTVWidget(id, type) {
+            const script = document.createElement('script');
+            script.src = `https://s3.tradingview.com/external-embedding/${type}.js`;
+            script.async = true;
+            script.innerHTML = JSON.stringify({ "symbol": symbol, "colorTheme": "light", "width": "100%", "height": "100%" });
+            document.getElementById(id).appendChild(script);
         }
 
-        function useFallbackStats() {
-            document.getElementById('companyName').innerText = "מציג נתונים מ-TradingView (API Limit)";
-            document.getElementById('quick-stats').innerHTML = `<div class="p-4 text-slate-400">השתמש בגרף למטה לנתונים חיים</div>`;
-        }
+        function toggleModal() { document.getElementById('setup-modal').classList.toggle('hidden'); }
 
-        function switchTab(t) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden-tab'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-green-600'));
-            document.getElementById('tab-' + t).classList.remove('hidden-tab');
-            document.getElementById('btn-' + t).classList.add('tab-active');
-
-            if (t === 'financials') {
-                const container = document.getElementById('tv-financials-widget');
-                if (container.innerHTML === "") {
-                    const script = document.createElement('script');
-                    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-financials.js";
-                    script.async = true;
-                    script.innerHTML = JSON.stringify({
-                        "symbol": symbol, "colorTheme": "light", "isMaximized": true, "width": "100%", "height": "100%", "locale": "he_IL"
-                    });
-                    container.appendChild(script);
-                }
-            }
-        }
-
-        init();
+        // טעינה ראשונית
+        renderDashboard(['chart', 'financials']);
     </script>
 </body>
 </html>
