@@ -9,12 +9,9 @@
         body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, sans-serif; color: #1e293b; }
         .card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .tab-active { color: #16a34a; border-bottom: 3px solid #16a34a; font-weight: 800; }
-        .tab-btn { transition: all 0.2s; cursor: pointer; }
-        .tab-btn:hover { color: #16a34a; }
         .hidden-tab { display: none; }
-        th { background-color: #f1f5f9; color: #64748b; font-size: 0.85rem; padding: 12px; text-align: right; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-weight: 600; }
-        tr:hover { background-color: #f8fafc; }
+        .positive { color: #16a34a; }
+        .negative { color: #dc2626; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -25,159 +22,105 @@
                 <a href="index.html" class="text-3xl font-black text-green-600">FINLONG</a>
                 <h1 id="ticker" class="text-4xl font-bold uppercase text-slate-800 border-r-2 pr-3 border-slate-300">---</h1>
             </div>
-            <p id="companyName" class="text-slate-500 font-medium">טוען נתונים מהבורסה...</p>
+            <p id="companyName" class="text-slate-500 font-medium">מתחבר לנתוני מסחר...</p>
         </div>
         <div class="flex gap-3">
-            <button onclick="document.getElementById('customize-modal').classList.remove('hidden')" class="bg-white border border-slate-300 px-5 py-2 rounded-xl font-bold hover:bg-slate-50">⚙️ התאמה אישית</button>
+            <button class="bg-white border border-slate-300 px-5 py-2 rounded-xl font-bold hover:bg-slate-50">⚙️ התאמה</button>
             <button class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:bg-green-700 transition">הוסף למעקב</button>
         </div>
     </header>
 
-    <section id="quick-stats" class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+    <section id="quick-stats" class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
         </section>
 
     <nav class="max-w-7xl mx-auto mb-6 border-b-2 border-slate-100 overflow-x-auto">
         <div class="flex gap-8 pb-1">
-            <button onclick="switchTab('overview')" id="btn-overview" class="tab-btn tab-active pb-3 whitespace-nowrap">סקירה וגרף</button>
-            <button onclick="switchTab('income')" id="btn-income" class="tab-btn text-slate-400 pb-3 whitespace-nowrap">רווח והפסד</button>
-            <button onclick="switchTab('balance')" id="btn-balance" class="tab-btn text-slate-400 pb-3 whitespace-nowrap">מאזן</button>
-            <button onclick="switchTab('cash')" id="btn-cash" class="tab-btn text-slate-400 pb-3 whitespace-nowrap">תזרים מזומנים</button>
-            <button onclick="switchTab('ratios')" id="btn-ratios" class="tab-btn text-slate-400 pb-3 whitespace-nowrap">יחסים פיננסיים</button>
+            <button onclick="switchTab('overview')" id="btn-overview" class="tab-btn tab-active pb-3">סקירה</button>
+            <button onclick="switchTab('financials')" id="btn-financials" class="tab-btn text-slate-400 pb-3">דוחות כספיים</button>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto">
-        <div id="tab-overview" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 card h-[550px] overflow-hidden">
-                <div id="tv-chart" class="h-full"></div>
-            </div>
-            <div class="card p-6">
-                <h3 class="font-bold text-slate-800 mb-4 border-b pb-2">אודות החברה</h3>
-                <p id="description" class="text-slate-600 text-sm leading-relaxed overflow-y-auto max-h-[400px]">טוען תיאור מפורט...</p>
-            </div>
+        <div id="tab-overview" class="tab-content h-[600px] card overflow-hidden">
+            <div id="tv-main-chart" class="h-full"></div>
         </div>
 
-        <div id="tab-data-container" class="tab-content hidden-tab card overflow-x-auto">
-            <table class="w-full" id="financial-table">
-                </table>
+        <div id="tab-financials" class="tab-content hidden-tab h-[600px] card p-4">
+             <div id="tv-financials-widget" class="h-full"></div>
         </div>
     </main>
-
-    <div id="customize-modal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-3xl max-w-sm w-full shadow-2xl">
-            <h2 class="text-xl font-bold mb-4">התאמת תצוגה</h2>
-            <p class="text-sm text-slate-500 mb-6">בחר את הנתונים שיופיעו בגישה המהירה:</p>
-            <div class="space-y-3 mb-8">
-                <label class="flex items-center gap-2"><input type="checkbox" checked> שווי שוק</label>
-                <label class="flex items-center gap-2"><input type="checkbox" checked> מכפיל P/E</label>
-                <label class="flex items-center gap-2"><input type="checkbox" checked> תשואת דיבידנד</label>
-            </div>
-            <button onclick="document.getElementById('customize-modal').classList.add('hidden')" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">שמור שינויים</button>
-        </div>
-    </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         const API_KEY = "UV80D7jta2txt3SXBbVyCAJNXaGQ1ZRT";
         const symbol = new URLSearchParams(window.location.search).get('symbol')?.toUpperCase() || 'AAPL';
 
-        async function loadPageData() {
-            try {
-                // 1. נתוני מחיר ופרופיל
-                const [qRes, pRes] = await Promise.all([
-                    fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${API_KEY}`).then(r => r.json()),
-                    fetch(`https://financialmodelingprep.com/api/v3/profile/${symbol}?apikey=${API_KEY}`).then(r => r.json())
-                ]);
-
-                if(qRes[0]) {
-                    const q = qRes[0];
-                    document.getElementById('ticker').innerText = q.symbol;
-                    document.getElementById('companyName').innerText = q.name;
-                    
-                    const stats = [
-                        {label: 'מחיר', val: '$' + q.price.toLocaleString()},
-                        {label: 'שווי שוק', val: (q.marketCap/1e9).toFixed(2) + 'B'},
-                        {label: 'P/E', val: q.pe || 'N/A'},
-                        {label: 'שינוי יומי', val: q.changesPercentage.toFixed(2) + '%'},
-                        {label: 'גבוה שנתי', val: '$' + q.yearHigh},
-                        {label: 'נמוך שנתי', val: '$' + q.yearLow}
-                    ];
-                    document.getElementById('quick-stats').innerHTML = stats.map(s => `
-                        <div class="card p-4">
-                            <p class="text-[10px] text-slate-400 font-bold uppercase">${s.label}</p>
-                            <p class="text-lg font-black text-slate-800">${s.val}</p>
-                        </div>
-                    `).join('');
-                }
-
-                if(pRes[0]) {
-                    document.getElementById('description').innerText = pRes[0].description;
-                }
-
-                // טעינת גרף
-                new TradingView.widget({
-                    "container_id": "tv-chart", "symbol": symbol, "width": "100%", "height": "100%",
-                    "interval": "D", "theme": "light", "style": "1", "locale": "he_IL"
-                });
-
-            } catch(e) { console.error("Error:", e); }
-        }
-
-        async function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-            document.getElementById('btn-' + tab).classList.add('tab-active');
-
-            const dataContainer = document.getElementById('tab-data-container');
-            const overviewContainer = document.getElementById('tab-overview');
-
-            if(tab === 'overview') {
-                overviewContainer.classList.remove('hidden-tab');
-                dataContainer.classList.add('hidden-tab');
-            } else {
-                overviewContainer.classList.add('hidden-tab');
-                dataContainer.classList.remove('hidden-tab');
-                await loadFinancialTable(tab);
-            }
-        }
-
-        async function loadFinancialTable(type) {
-            let endpoint = '';
-            let keys = [];
-
-            if(type === 'income') {
-                endpoint = 'income-statement';
-                keys = ['date', 'revenue', 'grossProfit', 'netIncome', 'eps'];
-            } else if(type === 'balance') {
-                endpoint = 'balance-sheet-statement';
-                keys = ['date', 'totalAssets', 'totalLiabilities', 'totalStockholdersEquity'];
-            } else if(type === 'cash') {
-                endpoint = 'cash-flow-statement';
-                keys = ['date', 'operatingCashFlow', 'capitalExpenditure', 'freeCashFlow'];
-            } else if(type === 'ratios') {
-                endpoint = 'ratios';
-                keys = ['date', 'currentRatio', 'returnOnEquity', 'dividendYield'];
-            }
-
-            const data = await fetch(`https://financialmodelingprep.com/api/v3/${endpoint}/${symbol}?limit=5&apikey=${API_KEY}`).then(r => r.json());
+        async function init() {
+            document.getElementById('ticker').innerText = symbol;
             
-            let html = `<thead><tr>`;
-            keys.forEach(k => html += `<th>${k.toUpperCase()}</th>`);
-            html += `</tr></thead><tbody>`;
-
-            data.forEach(row => {
-                html += `<tr>`;
-                keys.forEach(k => {
-                    let val = row[k];
-                    if(typeof val === 'number') val = val > 1e6 || val < -1e6 ? (val/1e6).toFixed(2) + 'M' : val.toFixed(2);
-                    html += `<td>${val || '---'}</td>`;
-                });
-                html += `</tr>`;
+            // טעינת הגרף (זה תמיד עובד)
+            new TradingView.widget({
+                "container_id": "tv-main-chart", "symbol": symbol, "width": "100%", "height": "100%",
+                "interval": "D", "theme": "light", "style": "1", "locale": "he_IL"
             });
 
-            document.getElementById('financial-table').innerHTML = html + `</tbody>`;
+            // ניסיון למשוך נתונים מה-API החדש
+            try {
+                const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${symbol}?apikey=${API_KEY}`);
+                const data = await res.json();
+                
+                if (data && data[0]) {
+                    renderStats(data[0]);
+                } else {
+                    useFallbackStats();
+                }
+            } catch (e) {
+                useFallbackStats();
+            }
         }
 
-        loadPageData();
+        function renderStats(q) {
+            document.getElementById('companyName').innerText = q.name;
+            const stats = [
+                {label: 'מחיר', val: '$' + q.price.toLocaleString()},
+                {label: 'שווי שוק', val: (q.marketCap/1e9).toFixed(2) + 'B'},
+                {label: 'P/E', val: q.pe || 'N/A'},
+                {label: 'שינוי', val: q.changesPercentage.toFixed(2) + '%'}
+            ];
+            document.getElementById('quick-stats').innerHTML = stats.map(s => `
+                <div class="card p-4">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">${s.label}</p>
+                    <p class="text-lg font-black">${s.val}</p>
+                </div>
+            `).join('');
+        }
+
+        function useFallbackStats() {
+            document.getElementById('companyName').innerText = "מציג נתונים מ-TradingView (API Limit)";
+            document.getElementById('quick-stats').innerHTML = `<div class="p-4 text-slate-400">השתמש בגרף למטה לנתונים חיים</div>`;
+        }
+
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden-tab'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active', 'text-green-600'));
+            document.getElementById('tab-' + t).classList.remove('hidden-tab');
+            document.getElementById('btn-' + t).classList.add('tab-active');
+
+            if (t === 'financials') {
+                const container = document.getElementById('tv-financials-widget');
+                if (container.innerHTML === "") {
+                    const script = document.createElement('script');
+                    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-financials.js";
+                    script.async = true;
+                    script.innerHTML = JSON.stringify({
+                        "symbol": symbol, "colorTheme": "light", "isMaximized": true, "width": "100%", "height": "100%", "locale": "he_IL"
+                    });
+                    container.appendChild(script);
+                }
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
